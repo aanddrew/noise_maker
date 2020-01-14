@@ -1,6 +1,8 @@
 #ifndef MUSIC_H
 #define MUSIC_H
 
+#include <math.h>
+
 #define NOTE_C4  261.63f
 #define NOTE_C4s 277.18f
 #define NOTE_D4  293.66f
@@ -47,6 +49,13 @@ typedef struct {
 
 void delete_sample(Sample* sample);
 
-void paint(Sample* brush, unsigned char* canvas, int start, int canvas_length);
+void paint(float (*function) (float, float), float frequency, float* canvas, float start_t, float total_t);
+void discretize(short* short_buffer, float* original, int length);
+void master(float* canvas, int canvas_length);
 
+float sin_function(float frequency, float t);
+float square_function(float frequency, float t);
+float saw_function(float frequency, float t);
+float triangle_function(float frequency, float t);
+    
 #endif 
