@@ -8,7 +8,7 @@ int init_sound_engine() {
     periodsize = 8192;
 
     //init vars and allocate hwparams
-    pcm_name = strdup("hw:0");
+    pcm_name = strdup("hw:1");
     snd_pcm_hw_params_alloca(&hwparams);
 
     int err;
