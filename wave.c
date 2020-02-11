@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../globals.h"
+#include "globals.h"
 
 void write_to_wave(const char* file_name, void* buffer, int length) {
     FILE* output = fopen(file_name, "wb");

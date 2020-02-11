@@ -2,6 +2,7 @@
 #define MUSIC_H
 
 #include <math.h>
+#include <stdlib.h>
 
 #define NOTE_C4  261.63f
 #define NOTE_C4s 277.18f
@@ -15,6 +16,8 @@
 #define NOTE_A4  440.00f
 #define NOTE_A4s 466.16f
 #define NOTE_B4  493.88f
+
+typedef float (*sound_func_t)(float, float);
 
 extern const float SCALE_4[];
 
@@ -55,28 +58,42 @@ typedef struct {
 } Envelope;
 
 typedef struct {
-    float (*function)(float, float, ...);
-    float arg;
+    float (*function)(float, float);
 } Filter;
 
 typedef struct {
-    float (*function)(float, float);
+    sound_func_t function;
     Envelope env;
     Filter filt;
 } Instrument;
 
-void delete_sample(Sample* sample);
+typedef struct {
+    Instrument ins;
+    float* starts;
+    float* lengths;
+    float* freqs;
+    int num_notes;
+    int size_notes;
+} Track;
 
-void paint(Instrument ins, float frequency, float* canvas, float start_t, float total_t);
+void paint_track(Track track, float* canvas);
+void paint_ins(Instrument ins, float frequency, float* canvas, float start_t, float total_t);
 void discretize(short* short_buffer, float* original, int length);
 void master(float* canvas, int canvas_length);
+
+void init_track(Track* track);
+void destroy_track(Track* track);
+void insert_note_into_track(Track* track, float freq, float start, float length); 
 
 float sin_function(float frequency, float t);
 float square_function(float frequency, float t);
 float saw_function(float frequency, float t);
 float triangle_function(float frequency, float t);
 
-float null_filter(float value, float t, ...);
+float null_filter(float value, float t);
 float quantize_filter(float value, float t, float step_size);
-    
+
+extern const Envelope default_env;
+extern const Filter default_filt;
+
 #endif 

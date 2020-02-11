@@ -1,0 +1,11 @@
+tempo 120
+
+track sin
+    note C5 0.2 2
+    note E5 0.2 2
+    note G5 0.2 2
+end track
+
+track saw
+    note D4 0.5 2
+end track

@@ -4,7 +4,7 @@
 
 #define SHORT_MAX 0x7fff
 
-#include "../globals.h"
+#include "globals.h"
 
 const float SCALE_4[] = {
     NOTE_C4,
@@ -44,7 +44,7 @@ float triangle_function(float frequency, float t) {
     return val * 2 - 1;
 }
 
-float null_filter(float value, float t, ...) {
+float null_filter(float value, float t) {
     return value;
 }
 
@@ -52,7 +52,13 @@ float quantize_filter(float value, float t, float step_size) {
     return value - fmod(value, step_size);
 }
 
-void paint(Instrument ins, float frequency, float* canvas, float start_t, float total_t) {
+void paint_track(Track track, float* canvas) {
+    for(int i = 0; i < track.num_notes; i++) {
+        paint_ins(track.ins, track.freqs[i], canvas, track.starts[i], track.lengths[i]);
+    }
+}
+
+void paint_ins(Instrument ins, float frequency, float* canvas, float start_t, float total_t) {
     int num_frames = WAVE_RATE * (total_t + ins.env.release);
     int start_frame = WAVE_RATE * start_t;
 
@@ -74,10 +80,40 @@ void paint(Instrument ins, float frequency, float* canvas, float start_t, float 
         }
 
         float value = ins.function(frequency, t) * vol_mod;
-        value = ins.filt.function(value, t, ins.filt.arg);
+        value = ins.filt.function(value, t);
         canvas[2*frame + 0] += value;
         canvas[2*frame + 1] += value;
     }
+}
+
+void init_track(Track* track) {
+    track->size_notes = 2;
+    track->freqs   = malloc(sizeof(float) * track->size_notes);
+    track->starts  = malloc(sizeof(float) * track->size_notes);
+    track->lengths = malloc(sizeof(float) * track->size_notes);
+}
+
+void destroy_track(Track* track) {
+    free(track->freqs);
+    free(track->starts);
+    free(track->lengths);
+}
+
+void insert_note_into_track(Track* track, float freq, float start, float length) {
+    if (track->num_notes >= track->size_notes) {
+        //resizing time
+        track->size_notes *= 2;
+        int size_mem = track->size_notes * sizeof(float);
+
+        track->freqs = realloc(track->freqs, size_mem);
+        track->starts = realloc(track->starts, size_mem);
+        track->lengths = realloc(track->lengths, size_mem);
+    }
+
+    track->freqs  [track->num_notes] = freq;
+    track->starts [track->num_notes] = start;
+    track->lengths[track->num_notes] = length;
+    track->num_notes++;
 }
 
 void master(float* buffer, int length) {

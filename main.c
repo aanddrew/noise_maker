@@ -3,9 +3,10 @@
 #include <string.h>
 #include <math.h>
 
-#include "music/music.h"
-#include "sound/wave.h"
+#include "music.h"
+#include "wave.h"
 #include "globals.h"
+#include "parser.h"
 
 float sound_function(float frequency, float t) {
     return sin_function(frequency, exp(-1*(t+2)));
@@ -42,7 +43,26 @@ float woo(float frequency, float t) {
     return actual * vol;
 }
 
-int main() {
+const Envelope default_env = {
+    .attack = 0.05f,
+    .decay = 0.0f,
+    .sustain = 1.0f,
+    .release = 0.05f
+};
+
+const Filter default_filt = {
+    .function = null_filter,
+};
+
+int main(int argc, char** argv) {
+    if (argc == 1) {
+        printf("No File Provided - usage: noise_maker file.nm\n");
+        exit(0);
+    }
+    else {
+        printf("Compiling %s...\n", argv[1]);
+    }
+
     int num_seconds = 30;
     int size_buffer = num_seconds * WAVE_RATE * 2;
 
@@ -50,81 +70,11 @@ int main() {
     memset(buffer, 0.0f, size_buffer * sizeof(float));
     short* short_buffer = (short*) malloc(size_buffer * sizeof(short));
 
-    Envelope env = {
-        0.05f, 0.1, 0.8, 0.6
-    };
+    int num_tracks, tempo;
+    Track* tracks = parse_song(argv[1], &num_tracks, &tempo);
 
-    Filter filt = {
-        null_filter,
-        0.15,
-    };
-
-    float chords[][3] = {
-        {
-            NOTE_C4,
-            NOTE_E4,
-            NOTE_G4,
-        },
-        {
-            NOTE_G4,
-            NOTE_B4,
-            NOTE_D4 * 2,
-        },
-        {
-            NOTE_A4,
-            NOTE_C4,
-            NOTE_E4,
-        },
-        {
-            NOTE_F4,
-            NOTE_A4,
-            NOTE_C4 * 2,
-        },
-        
-        //second bar
-        {
-            NOTE_C4,
-            NOTE_E4,
-            NOTE_G4,
-        },
-        {
-            NOTE_G4,
-            NOTE_B4,
-            NOTE_D4 * 2,
-        },
-        {
-            NOTE_A4,
-            NOTE_C4,
-            NOTE_E4,
-        },
-        {
-            NOTE_F4,
-            NOTE_A4,
-            NOTE_C4 * 2,
-        },
-
-    };
-    int num_chords = 4;
-    int size_chords[] = {
-        3,
-        3,
-        3,
-        3,
-    };
-
-    Instrument ins = {
-        woo,
-        env,
-        filt
-    };
-
-    for(int a = 0; a < 3; a++) {
-        for(int i = 0; i < num_chords; i++) {
-            //for(int j = 0; j < size_chords[i]; j++) {
-            for(int j = 0; j < 1; j++) {
-                paint(ins , chords[i][j] * 2, buffer, 2.0f * i + a * 8.0f, 2.0f);
-            }
-        }
+    for(int i = 0; i < num_tracks; i++) {
+        paint_track(tracks[i], buffer);
     }
 
     master(buffer, size_buffer);
@@ -133,4 +83,10 @@ int main() {
 
     free(buffer);
     free(short_buffer);
+
+    for(int i = 0; i < num_tracks; i++) {
+        destroy_track(&tracks[i]);
+    }
+
+    free(tracks);
 }
