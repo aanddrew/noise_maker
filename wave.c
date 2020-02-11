@@ -1,6 +1,5 @@
 #include <stdio.h>
-
-#include "sound_engine.h"
+#include "../globals.h"
 
 void write_to_wave(const char* file_name, void* buffer, int length) {
     FILE* output = fopen(file_name, "wb");
@@ -20,8 +19,9 @@ void write_to_wave(const char* file_name, void* buffer, int length) {
     short num_channels = 2;
     fwrite(&num_channels, 2, 1, output);
 
-    fwrite(&rate, 4, 1, output);
-    int byte_rate = rate * 2 * 2;
+    int temp_wave_rate = WAVE_RATE;
+    fwrite(&temp_wave_rate, 4, 1, output);
+    int byte_rate = WAVE_RATE * 2 * 2;
     fwrite(&byte_rate, 4, 1, output);
     short block_align = 4;
     fwrite(&block_align, 2, 1, output);

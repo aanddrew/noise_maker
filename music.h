@@ -47,9 +47,27 @@ typedef struct {
     //maybe an array of filters on top of it, where filters are functions
 } Sample;
 
+typedef struct {
+    float attack;
+    float decay;
+    float sustain;
+    float release;
+} Envelope;
+
+typedef struct {
+    float (*function)(float, float, ...);
+    float arg;
+} Filter;
+
+typedef struct {
+    float (*function)(float, float);
+    Envelope env;
+    Filter filt;
+} Instrument;
+
 void delete_sample(Sample* sample);
 
-void paint(float (*function) (float, float), float frequency, float* canvas, float start_t, float total_t);
+void paint(Instrument ins, float frequency, float* canvas, float start_t, float total_t);
 void discretize(short* short_buffer, float* original, int length);
 void master(float* canvas, int canvas_length);
 
@@ -57,5 +75,8 @@ float sin_function(float frequency, float t);
 float square_function(float frequency, float t);
 float saw_function(float frequency, float t);
 float triangle_function(float frequency, float t);
+
+float null_filter(float value, float t, ...);
+float quantize_filter(float value, float t, float step_size);
     
 #endif 
