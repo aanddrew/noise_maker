@@ -55,12 +55,29 @@ const Filter default_filt = {
 };
 
 int main(int argc, char** argv) {
+    init_parser();
+
+    const char* output_file_name = "output.wav";
+    const char* input_file_name = "example_inputs/func.nm";
     if (argc == 1) {
         printf("No File Provided - usage: noise_maker file.nm\n");
-        exit(0);
+        //input_file_name = argv[1];
+        //exit(1);
     }
     else {
-        printf("Compiling %s...\n", argv[1]);
+        input_file_name = argv[1];
+        printf("Compiling %sn", input_file_name);
+    }
+
+    for(int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-o")) {
+            i++;
+            if (i >= argc) {
+                printf("-o missing output file name, exiting...\n");
+                exit(1);
+            }
+            output_file_name = argv[i];
+        }
     }
 
     int num_seconds = 30;
@@ -71,7 +88,9 @@ int main(int argc, char** argv) {
     short* short_buffer = (short*) malloc(size_buffer * sizeof(short));
 
     int num_tracks, tempo;
-    Track* tracks = parse_song(argv[1], &num_tracks, &tempo);
+    Track* tracks = parse_song(input_file_name, &num_tracks, &tempo);
+
+    printf("Song successfully compiled with %d tracks at %d bpm\n", num_tracks, tempo);
 
     for(int i = 0; i < num_tracks; i++) {
         paint_track(tracks[i], buffer);
@@ -79,7 +98,8 @@ int main(int argc, char** argv) {
 
     master(buffer, size_buffer);
     discretize(short_buffer, buffer, size_buffer);
-    write_to_wave("output.wav", short_buffer, size_buffer);
+    printf("Writing song to %s\n", output_file_name);
+    write_to_wave(output_file_name, short_buffer, size_buffer);
 
     free(buffer);
     free(short_buffer);

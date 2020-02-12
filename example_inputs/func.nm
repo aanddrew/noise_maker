@@ -1,0 +1,7 @@
+tempo 120
+func growl 
+    return f t saw 0.9 * 0.1 +
+end func
+track growl
+    note C5 2 2
+end track

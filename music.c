@@ -79,7 +79,11 @@ void paint_ins(Instrument ins, float frequency, float* canvas, float start_t, fl
             vol_mod *= ins.env.sustain;
         }
 
-        float value = ins.function(frequency, t) * vol_mod;
+        //float value = ins.function(frequency, t) * vol_mod;
+        float value = evaluate_tree(ins.tree, frequency, t) * vol_mod;
+        int start = 4000;
+        if (frame - start_frame >= start && frame - start_frame <= start + 100)
+            printf("%f\n", value);
         value = ins.filt.function(value, t);
         canvas[2*frame + 0] += value;
         canvas[2*frame + 1] += value;
