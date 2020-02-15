@@ -66,19 +66,20 @@ MathNode* create_ast(const char** strings, int length) {
                }
             }
 
-            if (should_pop) {
-                MathNode* right = stack_pop(stack);
-                MathNode* left = stack_pop(stack);
-                if (!right || !left) {
-                    printf("Error building AST!!!\n");
-                    return NULL;
-                }
-                newnode->left = left;
-                newnode->right = right;
-            }
-
-            stack_push(stack, newnode);
         }
+        if (should_pop) {
+            MathNode* right = stack_pop(stack);
+            MathNode* left = stack_pop(stack);
+            if (!right || !left) {
+                printf("Error building AST!!!\n");
+                return NULL;
+            }
+            newnode->left = left;
+            newnode->right = right;
+        }
+
+        stack_push(stack, newnode);
+
     }
 
     //build up tree from this stack
