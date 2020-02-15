@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     }
     else {
         input_file_name = argv[1];
-        printf("Compiling %sn", input_file_name);
+        printf("Compiling %s\n", input_file_name);
     }
 
     for(int i = 1; i < argc; i++) {

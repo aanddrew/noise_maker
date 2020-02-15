@@ -168,6 +168,7 @@ Track* parse_song(const char* song_file_name, int* num_tracks_out, int* tempo) {
         //parse the line into tokens
         int c = 0;
         int start_whitespace = 1;
+        int index_whitespace = 0;
         for(int i = 0, s = 0; i < size_line; i++) {
             if(start_whitespace && (line[i] == '\t' || line[i] == ' ')) {
                 s=i + 1;
@@ -183,8 +184,13 @@ Track* parse_song(const char* song_file_name, int* num_tracks_out, int* tempo) {
             else{
                 tokens[i] = line[i];
             }
-            start_whitespace = 0;
+            if (start_whitespace) {
+                index_whitespace = i;
+                start_whitespace = 0;
+            }
         }
+        if (index_whitespace == strlen(line) - 1)
+            continue;
 
         //identify tokens
         for(int i = 0; i < c; i++) {
