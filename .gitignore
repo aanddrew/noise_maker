@@ -1,3 +1,5 @@
 a.out
 *.wav
 test.c
+example_funcs.c
+*test.*
