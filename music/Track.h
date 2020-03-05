@@ -12,7 +12,7 @@ typedef struct {
     int size_notes;
 } Track;
 
-void Track_init(Track* track);
+Track* Track_init();
 void Track_delete(Track* track);
 
 void Track_paint(Track* track, float* canvas);

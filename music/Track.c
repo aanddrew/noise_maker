@@ -2,11 +2,14 @@
 
 #include "Track.h"
 
-void Track_init(Track* track) {
+Track* Track_init() {
+    Track* track = malloc(sizeof(Track));
     track->size_notes = 2;
     track->freqs   = malloc(sizeof(float) * track->size_notes);
     track->starts  = malloc(sizeof(float) * track->size_notes);
     track->lengths = malloc(sizeof(float) * track->size_notes);
+
+    return track;
 }
 
 void Track_delete(Track* track) {

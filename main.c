@@ -41,12 +41,12 @@ int main(int argc, char** argv) {
     short* short_buffer = (short*) malloc(size_buffer * sizeof(short));
 
     //track creation
-    int num_tracks, tempo;
-    Track* tracks = Parser_parse(input_file_name, &num_tracks, &tempo);
-    printf("Song successfully compiled with %d tracks at %d bpm\n", num_tracks, tempo);
+    int tempo;
+    Vector* tracks = Parser_parse_song(input_file_name, &tempo);
+    printf("Song successfully compiled with %d tracks at %d bpm\n", tracks->num, tempo);
 
-    for(int i = 0; i < num_tracks; i++) {
-        Track_paint(&tracks[i], buffer);
+    for(int i = 0; i < tracks->num; i++) {
+        Track_paint(Vector_get(tracks, i), buffer);
     }
 
     master(buffer, size_buffer);
@@ -57,9 +57,8 @@ int main(int argc, char** argv) {
     free(buffer);
     free(short_buffer);
 
-    for(int i = 0; i < num_tracks; i++) {
-        Track_delete(&tracks[i]);
+    for(int i = 0; i < tracks->num; i++) {
+        Track_delete(Vector_get(tracks, i));
     }
-
-    free(tracks);
+    Vector_delete(tracks);
 }

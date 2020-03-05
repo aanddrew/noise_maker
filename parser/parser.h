@@ -2,7 +2,8 @@
 #define PARSER_H
 
 #include "../music/Track.h"
+#include "../containers/Vector.h"
 
-Track* Parser_parse(const char* song_file_name, int* num_tracks, int* tempo); 
+Vector* Parser_parse_song(const char* song_file_name, int* tempo); 
 
 #endif

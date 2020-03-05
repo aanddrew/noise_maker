@@ -7,8 +7,21 @@
 #include "parser.h"
 #include "helpers.h"
 #include "../music/music.h"
+#include "../containers/Vector.h"
 
 #define size_line 1024
+static int line_number = 0;
+
+static Vector* instrument_vec= NULL;
+static Instrument* find_instrument(const char* name) {
+    for(int i = 0; i < instrument_vec->num; i++) {
+        Instrument* current_ins = (Instrument*) Vector_get(instrument_vec, i);
+        if (!strcmp(name, current_ins->name)) {
+            return current_ins;
+        }
+    }
+    return NULL;
+}
 
 static MathTree* create_tree(FILE* file, const char* tree_name) {
     char line[size_line];
@@ -48,7 +61,10 @@ static Instrument* create_instrument(FILE* file, const char* name) {
             }
             else if (!strcmp(tokens[i], "env")) {
                 i++;
-                returned->tree = MathTree_lookup(tokens[i]);
+            }
+            else if (!strcmp(tokens[i], "filt")) {
+                i++;
+                returned->filter = MathTree_lookup(tokens[i]);
             }
             else if (!strcmp(tokens[i], "end")) {
                 break;
@@ -57,44 +73,24 @@ static Instrument* create_instrument(FILE* file, const char* name) {
 
         free(tokens);
     }
+    if (!instrument_vec) {
+        instrument_vec = Vector_init();
+        Vector_push(instrument_vec, (void*) returned);
+    }
     return returned;
 }
 
 static Track* create_track(FILE* file) {
-    return NULL;
-}
-
-Track* Parser_parse(const char* song_file_name, int* num_tracks_out, int* tempo) {
-    FILE* song_file = fopen(song_file_name, "r");
-    if (song_file == NULL) {
-        printf("File %s Not Found!\n", song_file_name);
-    }
-    
-    Track* tracks = malloc(sizeof(Track) * 4);
-    int num_tracks = 0;
-    int size_tracks = 4;
-    #define current_track tracks[num_tracks]
-
-    MathTree* current_tree;
-    
     char line[size_line];
-    Instrument current_instrument;
-
-    int line_number = 0;
-    while(fgets(line, size_line, song_file)) {
+    Track* returned = Track_init();
+    while(fgets(line, size_line, file)) {
         *strchr(line, '\n') = '\0';
-        printf("reading line: %s\n", line);
         int num_tokens;
         char** tokens = tokenize(line, &num_tokens);
-
-        //identify tokens
         for(int i = 0; i < num_tokens; i++) {
-            if(!strcmp(tokens[i], "tempo")) {
+            if (!strcmp(tokens[i], "ins")) {
                 i++;
-                *tempo = atoi(tokens[i]);
-            }
-            else if (!strcmp(tokens[i], "track")) {
-                i++;
+                returned->ins = find_instrument(tokens[i]);
             }
             else if (!strcmp(tokens[i], "note")) {
                 i++;
@@ -106,10 +102,50 @@ Track* Parser_parse(const char* song_file_name, int* num_tracks_out, int* tempo)
                 float note_start = atof(tokens[i]);
                 i++;
                 float note_length = atof(tokens[i]);
+                Track_insert_note(returned, note_freq, note_start, note_length);
+            }
+            else if (!strcmp(tokens[i], "end")) {
+                break;
+            }
+        }
+        free(tokens);
+    }
+    return returned;
+}
+
+Vector* Parser_parse_song(const char* song_file_name, int* tempo) {
+    FILE* song_file = fopen(song_file_name, "r");
+    if (song_file == NULL) {
+        printf("File %s Not Found!\n", song_file_name);
+    }
+
+    Vector* track_vec = Vector_init();
+    char line[size_line];
+    line_number = 0;
+
+    while(fgets(line, size_line, song_file)) {
+        *strchr(line, '\n') = '\0';
+        int num_tokens = 0;
+        char** tokens = tokenize(line, &num_tokens);
+
+        //identify tokens
+        for(int i = 0; i < num_tokens; i++) {
+            if(!strcmp(tokens[i], "tempo")) {
+                i++;
+                *tempo = atoi(tokens[i]);
+            }
+            else if (!strcmp(tokens[i], "track")) {
+                i++;
+                Track* newtrack = create_track(song_file);
+                Vector_push(track_vec, (void*) newtrack);
             }
             else if (!strcmp(tokens[i], "func")) {
                 i++;
                 MathTree* tree = create_tree(song_file, tokens[i]);
+            }
+            else if (!strcmp(tokens[i], "ins")) {
+                i++;
+                Instrument* ins = create_instrument(song_file, tokens[i]);
             }
         }
 
@@ -119,6 +155,5 @@ Track* Parser_parse(const char* song_file_name, int* num_tracks_out, int* tempo)
 
     fclose(song_file);
 
-    *num_tracks_out = num_tracks;
-    return tracks;
+    return track_vec;
 }
