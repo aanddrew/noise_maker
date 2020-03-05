@@ -13,7 +13,9 @@
 static MathTree* create_tree(FILE* file, const char* tree_name) {
     char line[size_line];
     MathTree* returned = NULL;
-    while(fgets(line, size_line, file)) {
+    int exit = 0;
+    while(fgets(line, size_line, file) && !exit) {
+        *strchr(line, '\n') = '\0';
         int num_tokens;
         char** tokens = tokenize(line, &num_tokens);
         for(int i = 0; i < num_tokens; i++) {
@@ -22,6 +24,7 @@ static MathTree* create_tree(FILE* file, const char* tree_name) {
                 returned = MathTree_init(tree_name, (const char**) &tokens[i], num_tokens - 1);
             }
             else if (!strcmp(tokens[i], "end")) {
+                exit = 1;
                 break;
             }
         }
@@ -35,6 +38,7 @@ static Instrument* create_instrument(FILE* file, const char* name) {
     char line[size_line];
     Instrument* returned = Instrument_init(name);
     while(fgets(line, size_line, file)) {
+        *strchr(line, '\n') = '\0';
         int num_tokens;
         char** tokens = tokenize(line, &num_tokens);
         for(int i = 0; i < num_tokens; i++) {
@@ -78,6 +82,8 @@ Track* Parser_parse(const char* song_file_name, int* num_tracks_out, int* tempo)
 
     int line_number = 0;
     while(fgets(line, size_line, song_file)) {
+        *strchr(line, '\n') = '\0';
+        printf("reading line: %s\n", line);
         int num_tokens;
         char** tokens = tokenize(line, &num_tokens);
 
@@ -100,13 +106,10 @@ Track* Parser_parse(const char* song_file_name, int* num_tracks_out, int* tempo)
                 float note_start = atof(tokens[i]);
                 i++;
                 float note_length = atof(tokens[i]);
-
             }
             else if (!strcmp(tokens[i], "func")) {
                 i++;
                 MathTree* tree = create_tree(song_file, tokens[i]);
-                float res = MathNode_evaluate(tree->head, 0,0);
-                printf("%f\n", res);
             }
         }
 
