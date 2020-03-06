@@ -42,14 +42,15 @@ int main(int argc, char** argv) {
 
     //track creation
     int tempo;
-    Vector* tracks = Parser_parse_song(input_file_name, &tempo);
-    printf("Song successfully compiled with %d tracks at %d bpm\n", tracks->num, tempo);
+    float volume;
+    Vector* tracks = Parser_parse_song(input_file_name, &tempo, &volume);
+    printf("Song successfully compiled with %d tracks at %d bpm, with master volume %f\n", tracks->num, tempo, volume);
 
     for(int i = 0; i < tracks->num; i++) {
         Track_paint(Vector_get(tracks, i), buffer);
     }
 
-    master(buffer, size_buffer);
+    master(buffer, size_buffer, volume);
     discretize(short_buffer, buffer, size_buffer);
     printf("Writing song to %s\n", output_file_name);
     write_to_wave(output_file_name, short_buffer, size_buffer);

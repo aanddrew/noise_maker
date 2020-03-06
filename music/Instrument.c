@@ -5,9 +5,17 @@
 #include "../math/MathNode.h"
 #include "Instrument.h"
 
+static const Envelope default_env = {
+    .attack = 0.05f,
+    .decay = 0.0f,
+    .sustain = 1.0f,
+    .release = 0.05f
+};
+
 Instrument* Instrument_init(const char* name) {
     Instrument* newins = malloc(sizeof(Instrument));
     newins->name = strdup(name);
+    newins->envelope = default_env;
     return newins;
 }
 

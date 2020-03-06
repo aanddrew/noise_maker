@@ -50,7 +50,8 @@ static MathTree* create_tree(FILE* file, const char* tree_name) {
 static Instrument* create_instrument(FILE* file, const char* name) {
     char line[size_line];
     Instrument* returned = Instrument_init(name);
-    while(fgets(line, size_line, file)) {
+    int exit = 0;
+    while(fgets(line, size_line, file) && !exit) {
         *strchr(line, '\n') = '\0';
         int num_tokens;
         char** tokens = tokenize(line, &num_tokens);
@@ -67,6 +68,7 @@ static Instrument* create_instrument(FILE* file, const char* name) {
                 returned->filter = MathTree_lookup(tokens[i]);
             }
             else if (!strcmp(tokens[i], "end")) {
+                exit = 1;
                 break;
             }
         }
@@ -75,15 +77,16 @@ static Instrument* create_instrument(FILE* file, const char* name) {
     }
     if (!instrument_vec) {
         instrument_vec = Vector_init();
-        Vector_push(instrument_vec, (void*) returned);
     }
+    Vector_push(instrument_vec, (void*) returned);
     return returned;
 }
 
 static Track* create_track(FILE* file) {
     char line[size_line];
     Track* returned = Track_init();
-    while(fgets(line, size_line, file)) {
+    int exit = 0;
+    while(fgets(line, size_line, file) && !exit) {
         *strchr(line, '\n') = '\0';
         int num_tokens;
         char** tokens = tokenize(line, &num_tokens);
@@ -105,6 +108,7 @@ static Track* create_track(FILE* file) {
                 Track_insert_note(returned, note_freq, note_start, note_length);
             }
             else if (!strcmp(tokens[i], "end")) {
+                exit = 1;
                 break;
             }
         }
@@ -113,7 +117,7 @@ static Track* create_track(FILE* file) {
     return returned;
 }
 
-Vector* Parser_parse_song(const char* song_file_name, int* tempo) {
+Vector* Parser_parse_song(const char* song_file_name, int* tempo, float* volume) {
     FILE* song_file = fopen(song_file_name, "r");
     if (song_file == NULL) {
         printf("File %s Not Found!\n", song_file_name);
@@ -134,6 +138,10 @@ Vector* Parser_parse_song(const char* song_file_name, int* tempo) {
                 i++;
                 *tempo = atoi(tokens[i]);
             }
+            else if (!strcmp(tokens[i], "volume")) {
+                i++;
+                *volume = atof(tokens[i]);
+            }
             else if (!strcmp(tokens[i], "track")) {
                 i++;
                 Track* newtrack = create_track(song_file);
@@ -141,11 +149,11 @@ Vector* Parser_parse_song(const char* song_file_name, int* tempo) {
             }
             else if (!strcmp(tokens[i], "func")) {
                 i++;
-                MathTree* tree = create_tree(song_file, tokens[i]);
+                create_tree(song_file, tokens[i]);
             }
             else if (!strcmp(tokens[i], "ins")) {
                 i++;
-                Instrument* ins = create_instrument(song_file, tokens[i]);
+                create_instrument(song_file, tokens[i]);
             }
         }
 

@@ -33,7 +33,7 @@ enum {
 };
 
 void discretize(short* short_buffer, float* original, int length);
-void master(float* canvas, int canvas_length);
+void master(float* canvas, int canvas_length, float volume);
 
 float sin_function(float frequency, float t);
 float square_function(float frequency, float t);

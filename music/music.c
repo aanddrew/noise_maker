@@ -51,7 +51,7 @@ float quantize_filter(float value, float t, float step_size) {
     return value - fmod(value, step_size);
 }
 
-void master(float* buffer, int length) {
+void master(float* buffer, int length, float volume) {
     float highest_value = 1.0f;
     for(int i = 0; i < length; i++) {
         if (buffer[i] > highest_value)
@@ -61,6 +61,7 @@ void master(float* buffer, int length) {
     float divisor = (highest_value * 1.1 > highest_value + 1 ? highest_value + 1 : highest_value * 1.1);
     for(int i = 0; i < length; i++) {
         buffer[i] /= divisor;
+        buffer[i] *= volume;
     }
 }
 
