@@ -89,6 +89,10 @@ MathTree* MathTree_init(const char* name, const char** strings, int length) {
 
     //build up tree from this stack
     MathNode* head = MathStack_pop(stack);
+    if (stack->num_nodes != 0) {
+        fprintf(stderr, "Error: \'func %s\' inconsistent number of operands!!!\n", name);
+        exit(1);
+    }
     MathStack_delete(stack);
     
     MathTree* newtree = malloc(sizeof(MathTree));
