@@ -6,11 +6,11 @@
 #include <string.h>
 #include <ctype.h>
 
-char** tokenize(char* line, int* num_ret) {
+char** tokenize(char* line, const char* sep, int* num_ret) {
     int num = 0;
     int size = 4;
     char** returned = malloc(sizeof(char*) * size);
-    char* token = strtok(line, " ");
+    char* token = strtok(line, sep);
 
     while(token != NULL) {
         if (num == size) {
@@ -18,12 +18,13 @@ char** tokenize(char* line, int* num_ret) {
             returned = realloc(returned, sizeof(char*) * size);
         }
         returned[num] = token;
-        token = strtok(NULL, " ");
+        token = strtok(NULL, sep);
         num++;
     }
 
     *num_ret = num;
     return returned;
+
 }
 
 float string_to_note(char* name) {

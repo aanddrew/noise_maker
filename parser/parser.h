@@ -5,5 +5,6 @@
 #include "../containers/Vector.h"
 
 Vector* Parser_parse_song(const char* song_file_name, int* tempo, float* volume); 
+void Parser_cleanup();
 
 #endif

@@ -6,6 +6,7 @@
 MathStack* MathStack_init() {
     MathStack* stack = malloc(sizeof(MathStack));
     stack->array = malloc(sizeof(MathNode*) * 8);
+    stack->num_nodes = 0;
     stack->size = 8;
 
     return stack;

@@ -20,6 +20,8 @@ MathNode* MathNode_init() {
 }
 
 void MathNode_delete(MathNode* node) {
+    if (node->operation)
+        free(node->operation);
     free(node);
 }
 

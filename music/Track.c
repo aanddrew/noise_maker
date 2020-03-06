@@ -4,6 +4,7 @@
 
 Track* Track_init() {
     Track* track = malloc(sizeof(Track));
+    track->num_notes = 0;
     track->size_notes = 2;
     track->freqs   = malloc(sizeof(float) * track->size_notes);
     track->starts  = malloc(sizeof(float) * track->size_notes);
@@ -16,6 +17,7 @@ void Track_delete(Track* track) {
     free(track->freqs);
     free(track->starts);
     free(track->lengths);
+    free(track);
 }
 
 void Track_paint(Track* track, float* canvas) {

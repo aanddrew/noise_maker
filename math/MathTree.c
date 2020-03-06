@@ -12,6 +12,13 @@ MathTree* MathTree_lookup(const char* name) {
     return TreeTable_lookup(tree_table, name);
 }
 
+void MathTree_cleanup() {
+    for(int i = 0; i < tree_table->num; i++) {
+        MathTree_delete(tree_table->trees[i]);
+    }
+    TreeTable_delete(tree_table);
+}
+
 static int is_operand(const char* str) {
     switch(str[0]) {
         case '+':
@@ -101,7 +108,8 @@ static void delete_ast(MathNode* head) {
         delete_ast(head->left);
     if (head->right)
         delete_ast(head->right);
-    free(head);
+
+    MathNode_delete(head);
 }
 
 void MathTree_delete(MathTree* tree) {

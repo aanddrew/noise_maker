@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
     if (argc == 1) {
         printf("No File Provided - usage: noise_maker file.nm\n");
         //input_file_name = argv[1];
-        //exit(1);
+        exit(1);
     }
     else {
         input_file_name = argv[1];
@@ -62,4 +62,6 @@ int main(int argc, char** argv) {
         Track_delete(Vector_get(tracks, i));
     }
     Vector_delete(tracks);
+    Parser_cleanup();
+    MathTree_cleanup();
 }
