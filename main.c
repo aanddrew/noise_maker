@@ -7,6 +7,7 @@
 #include "globals.h"
 #include "parser/parser.h"
 #include "music/music.h"
+#include "music/Track.h"
 
 int main(int argc, char** argv) {
 
@@ -41,14 +42,14 @@ int main(int argc, char** argv) {
     short* short_buffer = (short*) malloc(size_buffer * sizeof(short));
 
     //pattern creation
-    int tempo;
-    float volume;
-    Vector* patterns = Parser_parse_song(input_file_name, &tempo, &volume);
-    printf("Song successfully compiled with %d patterns at %d bpm, with master volume %f\n", patterns->num, tempo, volume);
+    int tempo = 120;
+    float volume = 1.0f;
+    Vector* tracks = Parser_parse_song(input_file_name, &tempo, &volume);
+    printf("Song successfully compiled with %d tracks at %d bpm, with master volume %f\n", tracks->num, tempo, volume);
 
     printf("Writing song to %s\n", output_file_name);
-    for(int i = 0; i < patterns->num; i++) {
-        Pattern_paint(Vector_get(patterns, i), buffer, 0.0f);
+    for(int i = 0; i < tracks->num; i++) {
+        Track_paint(Vector_get(tracks, i), buffer);
     }
 
     master(buffer, size_buffer, volume);
@@ -59,10 +60,11 @@ int main(int argc, char** argv) {
     free(buffer);
     free(short_buffer);
 
-    for(int i = 0; i < patterns->num; i++) {
-        Pattern_delete(Vector_get(patterns, i));
+    for(int i = 0; i < tracks->num; i++) {
+        Track_delete(Vector_get(tracks, i));
     }
-    Vector_delete(patterns);
+    Vector_delete(tracks);
+
     Parser_cleanup();
     MathTree_cleanup();
 }

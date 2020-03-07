@@ -1,9 +1,10 @@
-#ifndef TRACK_H
-#define TRACK_H
+#ifndef PATTERN_H
+#define PATTERN_H
 
 #include "Instrument.h"
 
 typedef struct {
+    char* name;
     Instrument* ins;
     float* starts;
     float* lengths;
@@ -12,7 +13,7 @@ typedef struct {
     int size_notes;
 } Pattern;
 
-Pattern* Pattern_init();
+Pattern* Pattern_init(const char* name);
 void Pattern_delete(Pattern* pattern);
 
 void Pattern_paint(Pattern* pattern, float* canvas, float offset);

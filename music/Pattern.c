@@ -1,9 +1,11 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "Pattern.h"
 
-Pattern* Pattern_init() {
+Pattern* Pattern_init(const char* name) {
     Pattern* pattern = malloc(sizeof(Pattern));
+    pattern->name = strdup(name);
     pattern->num_notes = 0;
     pattern->size_notes = 2;
     pattern->freqs   = malloc(sizeof(float) * pattern->size_notes);
@@ -14,6 +16,7 @@ Pattern* Pattern_init() {
 }
 
 void Pattern_delete(Pattern* pattern) {
+    free(pattern->name);
     free(pattern->freqs);
     free(pattern->starts);
     free(pattern->lengths);
