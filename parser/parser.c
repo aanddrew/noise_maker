@@ -32,7 +32,7 @@ void Parser_cleanup() {
 static void create_tree(FILE* file, const char* tree_name) {
     char line[size_line];
     int end = 0;
-    while(fgets(line, size_line, file) && !end) {
+    while(!end && fgets(line, size_line, file)) {
         line_number++;
         *strchr(line, '\n') = '\0';
         int num_tokens;
@@ -56,7 +56,7 @@ static Instrument* create_instrument(FILE* file, const char* name) {
     char line[size_line];
     Instrument* returned = Instrument_init(name);
     int end = 0;
-    while(fgets(line, size_line, file) && !end) {
+    while(!end && fgets(line, size_line, file)) {
         line_number++;
         *strchr(line, '\n') = '\0';
         int num_tokens;
@@ -92,7 +92,7 @@ static Track* create_track(FILE* file) {
     char line[size_line];
     Track* returned = Track_init();
     int end = 0;
-    while(fgets(line, size_line, file) && !end) {
+    while(!end && fgets(line, size_line, file)) {
         line_number++;
         *strchr(line, '\n') = '\0';
         int num_tokens;
