@@ -1,11 +1,11 @@
 tempo 120
 
-track sin
+pattern sin
     note C4 0.2 2
     note E4 0.2 2
     note G4 0.2 2
-end track
+end pattern
 
-track saw
+pattern saw
     note D4 0.5 2
-end track
+end pattern

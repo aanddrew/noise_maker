@@ -5,7 +5,7 @@
 #include "../math/MathNode.h"
 #include "Instrument.h"
 
-static const Envelope default_env = {
+const Envelope default_env = {
     .attack = 0.05f,
     .decay = 0.0f,
     .sustain = 1.0f,

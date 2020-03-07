@@ -13,6 +13,6 @@ Vector* Vector_init();
 void Vector_delete(Vector* vec);
 
 void Vector_push(Vector* vec, void* element);
-void* Vector_get(Vector* vec, unsigned int index);
+void* Vector_get(Vector* vec, int index);
 
 #endif

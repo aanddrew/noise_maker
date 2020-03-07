@@ -4,11 +4,14 @@
 #include "../math/MathTree.h"
 
 typedef struct {
+    char* name;
     float attack;
     float decay;
     float sustain;
     float release;
 } Envelope;
+
+extern const Envelope default_env;
 
 typedef struct {
     char* name;

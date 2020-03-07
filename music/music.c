@@ -43,14 +43,6 @@ float triangle_function(float frequency, float t) {
     return val * 2 - 1;
 }
 
-float null_filter(float value, float t) {
-    return value;
-}
-
-float quantize_filter(float value, float t, float step_size) {
-    return value - fmod(value, step_size);
-}
-
 void master(float* buffer, int length, float volume) {
     float highest_value = 1.0f;
     for(int i = 0; i < length; i++) {

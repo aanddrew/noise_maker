@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "Instrument.h"
-#include "Track.h"
+#include "Pattern.h"
 
 #define NOTE_C4  261.63f
 #define NOTE_C4s 277.18f

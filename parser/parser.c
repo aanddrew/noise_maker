@@ -12,7 +12,10 @@
 #define size_line 1024
 static int line_number = 0;
 
-static Vector* instrument_vec= NULL;
+static Vector* instrument_vec =  NULL;
+static Vector* envelope_vec   =  NULL;
+static Vector* envelope_names =  NULL;
+
 static Instrument* find_instrument(const char* name) {
     for(int i = 0; i < instrument_vec->num; i++) {
         Instrument* current_ins = (Instrument*) Vector_get(instrument_vec, i);
@@ -22,11 +25,33 @@ static Instrument* find_instrument(const char* name) {
     }
     return NULL;
 }
-void Parser_cleanup() {
-    for (int i = 0; i < instrument_vec->num; i++) {
-        Instrument_delete((Instrument*) Vector_get(instrument_vec, i));
+static Envelope find_envelope(const char* name) {
+    for(int i = 0; i < envelope_names->num; i++) {
+        if (!strcmp(name, Vector_get(envelope_names,i))) {
+            return *((Envelope*)Vector_get(envelope_vec, i));
+        }
     }
-    Vector_delete(instrument_vec);
+    return default_env;
+}
+void Parser_cleanup() {
+    if(instrument_vec) {
+        for (int i = 0; i < instrument_vec->num; i++) {
+            Instrument_delete((Instrument*) Vector_get(instrument_vec, i));
+        }
+        Vector_delete(instrument_vec);
+    }
+    if(envelope_vec) {
+        for(int i = 0; i < envelope_vec->num; i++) {
+            free(Vector_get(envelope_vec, i));
+        }
+        Vector_delete(envelope_vec);
+    }
+    if (envelope_names) {
+        for(int i = 0; i < envelope_names->num; i++) {
+            free(Vector_get(envelope_names, i));
+        }
+        Vector_delete(envelope_names);
+    }
 }
 
 static void create_tree(FILE* file, const char* tree_name) {
@@ -68,6 +93,7 @@ static Instrument* create_instrument(FILE* file, const char* name) {
             }
             else if (!strcmp(tokens[i], "env")) {
                 i++;
+                returned->envelope = find_envelope(tokens[i]);
             }
             else if (!strcmp(tokens[i], "filt")) {
                 i++;
@@ -88,9 +114,9 @@ static Instrument* create_instrument(FILE* file, const char* name) {
     return returned;
 }
 
-static Track* create_track(FILE* file) {
+static Pattern* create_pattern(FILE* file) {
     char line[size_line];
-    Track* returned = Track_init();
+    Pattern* returned = Pattern_init();
     int end = 0;
     while(!end && fgets(line, size_line, file)) {
         line_number++;
@@ -131,7 +157,7 @@ static Track* create_track(FILE* file) {
                     end = atof(elements[1]);
                     step = atof(elements[2]);
                     for (float f = start; f < end; f += step) {
-                        Track_insert_note(returned, note_freq, f, note_length);
+                        Pattern_insert_note(returned, note_freq, f, note_length);
                     }
                     
                     free(temp_token - 1);
@@ -142,7 +168,7 @@ static Track* create_track(FILE* file) {
                     float note_start = atof(tokens[i]);
                     i++;
                     float note_length = atof(tokens[i]);
-                    Track_insert_note(returned, note_freq, note_start, note_length);
+                    Pattern_insert_note(returned, note_freq, note_start, note_length);
                 }
             }
             else if (!strcmp(tokens[i], "end")) {
@@ -155,13 +181,56 @@ static Track* create_track(FILE* file) {
     return returned;
 }
 
+static void create_envelope(FILE* file, const char* name) {
+    Envelope* e = malloc(sizeof(Envelope));
+
+    char line[size_line];
+    int end = 0;
+    while(!end && fgets(line, size_line, file)) {
+        line_number++;
+        *strchr(line, '\n') = '\0';
+        int num_tokens;
+        char** tokens = tokenize(line, " ", &num_tokens);
+        for(int i = 0; i < num_tokens; i++) {
+            if (!strcmp(tokens[i], "attack")) {
+                i++;
+                e->attack = atof(tokens[i]);
+            }
+            else if (!strcmp(tokens[i], "sustain")) {
+                i++;
+                e->sustain = atof(tokens[i]);
+            }
+            else if (!strcmp(tokens[i], "decay")) {
+                i++;
+                e->decay = atof(tokens[i]);
+            }
+            else if (!strcmp(tokens[i], "release")) {
+                i++;
+                e->release = atof(tokens[i]);
+            }
+            else if (!strcmp(tokens[i], "end")) {
+                end = 1;
+                break;
+            }
+        }
+        free(tokens);
+    }
+    
+    if (!envelope_vec && !envelope_names) {
+        envelope_vec = Vector_init();
+        envelope_names = Vector_init();
+    }
+    Vector_push(envelope_vec, e);
+    Vector_push(envelope_names, strdup(name));
+}
+
 Vector* Parser_parse_song(const char* song_file_name, int* tempo, float* volume) {
     FILE* song_file = fopen(song_file_name, "r");
     if (song_file == NULL) {
         printf("File %s Not Found!\n", song_file_name);
     }
 
-    Vector* track_vec = Vector_init();
+    Vector* pattern_vec = Vector_init();
     char line[size_line];
     line_number = 0;
 
@@ -181,10 +250,10 @@ Vector* Parser_parse_song(const char* song_file_name, int* tempo, float* volume)
                 i++;
                 *volume = atof(tokens[i]);
             }
-            else if (!strcmp(tokens[i], "track")) {
+            else if (!strcmp(tokens[i], "pattern")) {
                 i++;
-                Track* newtrack = create_track(song_file);
-                Vector_push(track_vec, (void*) newtrack);
+                Pattern* newpattern = create_pattern(song_file);
+                Vector_push(pattern_vec, (void*) newpattern);
             }
             else if (!strcmp(tokens[i], "func")) {
                 i++;
@@ -194,6 +263,10 @@ Vector* Parser_parse_song(const char* song_file_name, int* tempo, float* volume)
                 i++;
                 create_instrument(song_file, tokens[i]);
             }
+            else if (!strcmp(tokens[i], "env")) {
+                i++;
+                create_envelope(song_file, tokens[i]);
+            }
         }
 
         free(tokens);
@@ -201,5 +274,5 @@ Vector* Parser_parse_song(const char* song_file_name, int* tempo, float* volume)
 
     fclose(song_file);
 
-    return track_vec;
+    return pattern_vec;
 }

@@ -8,13 +8,13 @@ func kick
     return f 20 / 1 t 20 * / sin
 end func
 
-track kick
+pattern kick
     note C6 0 2
     note C6 0.25 2
     note C6 0.5 2
     note C6 0.75 2
-end track
+end pattern
 
-track growl
+pattern growl
     note C5 2 4
-end track
+end pattern

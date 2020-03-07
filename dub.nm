@@ -1,0 +1,25 @@
+volume 1.0
+
+func dub
+    return f t sin f 2 / t sin f 3 / t sin + +
+end
+
+env wave
+    attack 0.01
+    decay 0.0
+    sustain 1.0
+    release 0.1
+end
+
+ins dub
+    func dub
+    env wave
+end
+
+pattern
+    ins dub
+    note D5 0 0.5
+    note G4 0.5 0.2
+    note C5# 0.6 0.15
+    note G3 0.7 0.3
+end

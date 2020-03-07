@@ -25,8 +25,8 @@ void Vector_push(Vector* vec, void* element) {
     vec->num++;
 }
 
-void* Vector_get(Vector* vec, unsigned int index) {
-    if (index >= vec->num) {
+void* Vector_get(Vector* vec, int index) {
+    if (index >= vec->num || index < 0) {
         return NULL;
     }
     return vec->array[index];

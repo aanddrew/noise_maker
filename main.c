@@ -40,28 +40,29 @@ int main(int argc, char** argv) {
     memset(buffer, 0.0f, size_buffer * sizeof(float));
     short* short_buffer = (short*) malloc(size_buffer * sizeof(short));
 
-    //track creation
+    //pattern creation
     int tempo;
     float volume;
-    Vector* tracks = Parser_parse_song(input_file_name, &tempo, &volume);
-    printf("Song successfully compiled with %d tracks at %d bpm, with master volume %f\n", tracks->num, tempo, volume);
+    Vector* patterns = Parser_parse_song(input_file_name, &tempo, &volume);
+    printf("Song successfully compiled with %d patterns at %d bpm, with master volume %f\n", patterns->num, tempo, volume);
 
-    for(int i = 0; i < tracks->num; i++) {
-        Track_paint(Vector_get(tracks, i), buffer);
+    printf("Writing song to %s\n", output_file_name);
+    for(int i = 0; i < patterns->num; i++) {
+        Pattern_paint(Vector_get(patterns, i), buffer, 0.0f);
     }
 
     master(buffer, size_buffer, volume);
     discretize(short_buffer, buffer, size_buffer);
-    printf("Writing song to %s\n", output_file_name);
     write_to_wave(output_file_name, short_buffer, size_buffer);
+    printf("Done writing.\n");
 
     free(buffer);
     free(short_buffer);
 
-    for(int i = 0; i < tracks->num; i++) {
-        Track_delete(Vector_get(tracks, i));
+    for(int i = 0; i < patterns->num; i++) {
+        Pattern_delete(Vector_get(patterns, i));
     }
-    Vector_delete(tracks);
+    Vector_delete(patterns);
     Parser_cleanup();
     MathTree_cleanup();
 }
