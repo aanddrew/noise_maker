@@ -19,6 +19,7 @@ void Track_delete(Track* track) {
         Vector_delete(offset_vec_i);
     }
     Vector_delete(track->offsets);
+    Vector_delete(track->patterns);
 }
 
 void Track_paint(Track* track, float* canvas) {
@@ -44,7 +45,7 @@ void Track_insert_offset(Track* track, Pattern* pattern, float offset) {
         if (current_pattern == pattern) {
             float* val = malloc(sizeof(float));
             *val = offset;
-            Vector_push(current_offsets, val);
+            Vector_push(current_offsets, (void*) val);
 
             in_vector = 1;
             break;

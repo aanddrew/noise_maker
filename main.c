@@ -62,6 +62,7 @@ int main(int argc, char** argv) {
 
     for(int i = 0; i < tracks->num; i++) {
         Track_delete(Vector_get(tracks, i));
+        free(Vector_get(tracks,i));
     }
     Vector_delete(tracks);
 

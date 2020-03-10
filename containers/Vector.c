@@ -18,7 +18,7 @@ void Vector_delete(Vector* vec) {
 void Vector_push(Vector* vec, void* element) {
     if (vec->num == vec->size) {
         vec->size *= 2;
-        vec->array = realloc(vec->array, vec->size);
+        vec->array = realloc(vec->array, sizeof(void*) * vec->size);
     }
 
     vec->array[vec->num] = element;
